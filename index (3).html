@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="山梨県立中央病院リハビリテーションセンター作成のフレイル予防セルフチェック。12の質問に答えるだけで、あなたのフレイルリスクがわかります。">
+<title>健幸みらいナビ｜フレイル予防チェック｜山梨県立中央病院リハビリテーションセンター</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f5f7f5;font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP','Yu Gothic',sans-serif;color:#1a1a1a;min-height:100vh;}
+.app{max-width:640px;margin:0 auto;padding:1rem;}
+.screen{display:none;}.screen.active{display:block;}
+
+/* ── YCH header ── */
+.ych-header{display:flex;align-items:center;gap:10px;padding:0.75rem 1rem;background:#fff;border:1px solid #e0e8e4;border-radius:12px;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.ych-mark{width:38px;height:38px;border-radius:7px;background:#0F6E56;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;flex-shrink:0;padding:8px;}
+.ych-mark span{display:block;background:white;border-radius:2px;height:3px;}
+.ych-mark span:nth-child(1){width:100%;}
+.ych-mark span:nth-child(2){width:72%;}
+.ych-mark span:nth-child(3){width:86%;}
+.ych-wordmark{display:flex;flex-direction:column;line-height:1.25;margin-left:4px;}
+.ych-en{font-size:16px;font-weight:700;color:#0F6E56;letter-spacing:0.06em;}
+.ych-ja{font-size:10px;color:#666;}
+.ych-divider{width:1px;height:30px;background:#d0ddd8;margin:0 6px;}
+.ych-app-name{font-size:12px;color:#555;line-height:1.5;}
+
+/* ── hero ── */
+.hero{text-align:center;padding:2rem 1rem 1.5rem;}
+.hero-icon{width:64px;height:64px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:30px;}
+.hero h1{font-size:22px;font-weight:700;color:#0F6E56;line-height:1.4;margin-bottom:0.4rem;}
+.hero .sub{font-size:12px;color:#888;margin-bottom:1rem;}
+.hero p{font-size:14px;color:#555;line-height:1.8;background:#f0faf5;border-radius:10px;padding:1rem;}
+.start-btn{display:block;width:100%;max-width:320px;margin:1.5rem auto 0;padding:16px;background:#1D9E75;color:white;border:none;border-radius:50px;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(29,158,117,0.3);transition:all 0.2s;}
+.start-btn:hover{background:#0F6E56;transform:translateY(-1px);}
+.start-btn:active{transform:scale(0.98);}
+
+/* ── progress ── */
+.prog-wrap{background:#fff;border-radius:12px;padding:0.875rem 1rem;margin-bottom:1rem;border:1px solid #e0e8e4;}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.prog-label{font-size:13px;color:#555;font-weight:500;}
+.prog-pct{font-size:13px;font-weight:700;color:#1D9E75;}
+.prog-bar{height:8px;background:#e8f4f0;border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#1D9E75,#5DCAA5);border-radius:4px;transition:width 0.4s ease;}
+
+/* ── question card ── */
+.q-card{background:#fff;border:1px solid #e0e8e4;border-radius:14px;padding:1.5rem 1.25rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.q-domain{display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;margin-bottom:0.75rem;letter-spacing:0.02em;}
+.q-domain.physical{background:#E1F5EE;color:#0F6E56;}
+.q-domain.nutrition{background:#FAEEDA;color:#854F0B;}
+.q-domain.oral{background:#FAECE7;color:#993C1D;}
+.q-domain.cognitive{background:#EEEDFE;color:#3C3489;}
+.q-domain.mental{background:#FBEAF0;color:#72243E;}
+.q-domain.social{background:#E6F1FB;color:#0C447C;}
+.q-num{font-size:11px;color:#aaa;margin-bottom:6px;}
+.q-text{font-size:17px;font-weight:600;color:#1a1a1a;line-height:1.6;margin-bottom:1.25rem;}
+
+/* ── hint ── */
+.hint-toggle{display:flex;align-items:center;gap:6px;font-size:13px;color:#555;background:#f8faf9;border:1px solid #d8eae3;border-radius:100px;padding:6px 14px;cursor:pointer;margin-bottom:1rem;transition:background 0.15s;}
+.hint-toggle:hover{background:#edf7f2;}
+.hint-box{background:#f0faf5;border-radius:10px;padding:0.875rem 1rem;font-size:13px;color:#3a5a50;line-height:1.7;margin-bottom:1rem;display:none;border-left:3px solid #1D9E75;}
+.hint-box.open{display:block;}
+
+/* ── answer buttons ── */
+.answer-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ans-btn{
+  padding:16px 8px;
+  border:2px solid #d0ddd8;
+  border-radius:12px;
+  font-size:18px;
+  font-weight:700;
+  background:#fff;
+  color:#888;
+  cursor:pointer;
+  transition:all 0.15s;
+  user-select:none;
+  position:relative;
+  letter-spacing:0.04em;
+}
+.ans-btn:hover:not(.sel-yes):not(.sel-no){background:#f5f5f5;border-color:#b0c8c0;}
+.ans-btn:active{transform:scale(0.96);}
+.ans-btn.sel-yes{
+  background:#FFF0EB !important;
+  border-color:#D85A30 !important;
+  border-width:3px !important;
+  color:#7A2E10 !important;
+  box-shadow:0 0 0 4px rgba(216,90,48,0.12) !important;
+}
+.ans-btn.sel-yes::after{content:"✓";position:absolute;top:6px;right:10px;font-size:14px;color:#D85A30;}
+.ans-btn.sel-no{
+  background:#EDFAF4 !important;
+  border-color:#1D9E75 !important;
+  border-width:3px !important;
+  color:#074D38 !important;
+  box-shadow:0 0 0 4px rgba(29,158,117,0.12) !important;
+}
+.ans-btn.sel-no::after{content:"✓";position:absolute;top:6px;right:10px;font-size:14px;color:#1D9E75;}
+
+/* ── nav ── */
+.nav-row{display:flex;gap:10px;margin-top:0.5rem;}
+.back-btn{padding:13px 20px;border:1.5px solid #d0ddd8;border-radius:50px;font-size:14px;background:#fff;color:#666;cursor:pointer;transition:all 0.15s;}
+.back-btn:hover{background:#f5f5f5;}
+.next-btn{flex:1;padding:14px;border:none;border-radius:50px;font-size:16px;font-weight:700;background:#1D9E75;color:white;cursor:pointer;transition:all 0.15s;box-shadow:0 3px 10px rgba(29,158,117,0.25);}
+.next-btn:disabled{background:#d0ddd8;color:#999;cursor:not-allowed;box-shadow:none;}
+.next-btn:not(:disabled):hover{background:#0F6E56;}
+.next-btn:not(:disabled):active{transform:scale(0.98);}
+
+/* ── result ── */
+.result-header{text-align:center;padding:1.5rem 0 1.25rem;}
+.risk-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:100px;font-size:15px;font-weight:700;margin-bottom:0.75rem;}
+.risk-healthy{background:#E1F5EE;color:#0F6E56;}
+.risk-prefail{background:#FAEEDA;color:#854F0B;}
+.risk-frail{background:#FAECE7;color:#993C1D;}
+.score-display{font-size:52px;font-weight:700;color:#1a1a1a;}
+.score-unit{font-size:22px;color:#888;font-weight:400;}
+.score-sub{font-size:13px;color:#888;margin-top:4px;}
+.result-desc{font-size:14px;color:#444;line-height:1.8;margin-top:1rem;background:#f0faf5;border-radius:12px;padding:1rem 1.25rem;border-left:4px solid #1D9E75;}
+
+.section-label{font-size:13px;font-weight:700;color:#555;margin:1.5rem 0 0.6rem;text-transform:uppercase;letter-spacing:0.04em;}
+.domain-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0.5rem;}
+.domain-card{background:#fff;border:1px solid #e0e8e4;border-radius:10px;padding:0.875rem 1rem;}
+.domain-label{font-size:11px;color:#888;margin-bottom:4px;}
+.domain-score{font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:5px;}
+.domain-bar-bg{background:#e8f0ee;border-radius:4px;height:6px;overflow:hidden;}
+.domain-bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease;}
+
+.action-section{background:#fff;border:1px solid #e0e8e4;border-radius:14px;padding:1.25rem;margin-top:1rem;}
+.action-title{font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:1rem;}
+.action-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+.action-item:last-child{border-bottom:none;padding-bottom:0;}
+.action-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;margin-top:1px;}
+.action-dot.green{background:#E1F5EE;color:#0F6E56;}
+.action-dot.amber{background:#FAEEDA;color:#854F0B;}
+.action-dot.coral{background:#FAECE7;color:#993C1D;}
+.action-text{font-size:13px;color:#555;line-height:1.7;}
+.action-text strong{color:#1a1a1a;font-weight:700;}
+
+.evidence-box{font-size:11px;color:#888;border:1px solid #e0e8e4;border-radius:10px;padding:0.875rem 1rem;margin-top:1rem;line-height:1.7;background:#fafafa;}
+.disclaimer{font-size:11px;color:#aaa;margin-top:0.75rem;line-height:1.7;text-align:center;}
+
+/* ── bottom actions ── */
+.bottom-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:1.25rem;}
+.btn-print{padding:14px;border:1.5px solid #d0ddd8;border-radius:12px;font-size:14px;background:#fff;color:#555;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:600;transition:all 0.15s;}
+.btn-print:hover{background:#f5f5f5;}
+.btn-send{padding:14px;border:none;border-radius:12px;font-size:14px;font-weight:700;background:#1D9E75;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;box-shadow:0 3px 10px rgba(29,158,117,0.25);}
+.btn-send:hover{background:#0F6E56;}
+.btn-send:disabled{background:#ccc;color:#999;cursor:not-allowed;box-shadow:none;}
+.btn-restart{display:block;width:100%;margin-top:10px;padding:14px;border:1.5px solid #d0ddd8;border-radius:12px;font-size:14px;background:#fff;color:#666;cursor:pointer;text-align:center;font-weight:600;transition:all 0.15s;}
+.btn-restart:hover{background:#f5f5f5;}
+
+/* ── 免責事項ボックス ── */
+.disclaimer-box{background:#fff8e8;border:1.5px solid #f0c040;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;}
+.disclaimer-box-title{font-size:13px;font-weight:700;color:#7a5800;margin-bottom:0.6rem;display:flex;align-items:center;gap:6px;}
+.disclaimer-box ul{padding-left:1.2rem;margin:0;}
+.disclaimer-box li{font-size:12px;color:#7a5800;line-height:1.8;}
+.disclaimer-box .credit{font-size:12px;color:#555;margin-top:0.6rem;font-weight:700;text-align:right;}
+
+/* ── responsive ── */
+@media(max-width:400px){
+  .app{padding:0.75rem;}
+  .q-text{font-size:16px;}
+  .ans-btn{font-size:17px;padding:14px 6px;}
+  .score-display{font-size:44px;}
+  .domain-grid{grid-template-columns:1fr 1fr;}
+  .bottom-actions{grid-template-columns:1fr;}
+}
+
+/* ── print ── */
+@media print{
+  body{background:#fff;}
+  .app,.screen,.screen.active{display:none !important;}
+  #print-area{display:block !important;}
+}
+#print-area{display:none;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- YCH header -->
+  <div class="ych-header">
+    <div class="ych-mark"><span></span><span></span><span></span></div>
+    <div class="ych-wordmark">
+      <span class="ych-en">YCH</span>
+      <span class="ych-ja">山梨県立中央病院</span>
+    </div>
+    <div class="ych-divider"></div>
+    <div class="ych-app-name">健幸みらいナビ<br>フレイル予防チェック</div>
+  </div>
+
+  <!-- START -->
+  <div id="screen-start" class="screen active">
+    <div class="hero">
+      <div class="hero-icon">🌿</div>
+      <h1>健幸みらいナビ</h1>
+      <p class="sub">12の質問でわかるフレイル予防ステップ</p>
+      <p>フレイル（虚弱）とは、加齢に伴い体や心の力が少し低下した状態です。早めに気づいて行動すれば、元気な状態に戻ることができます。<br><br>12の質問に「はい」か「いいえ」で答えてみましょう。</p>
+    </div>
+    <div class="disclaimer-box">
+      <div class="disclaimer-box-title">⚠️ ご利用前にお読みください</div>
+      <ul>
+        <li>本アプリはスクリーニングを目的としており、医療診断ではありません</li>
+        <li>結果はあくまで参考であり、診断・治療方針の決定には使用しないでください</li>
+        <li>気になる症状は必ずかかりつけ医にご相談ください</li>
+      </ul>
+      <div class="credit">作成：山梨県立中央病院 リハビリテーションセンター</div>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">✦ チェックを始める</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="prog-wrap">
+      <div class="prog-row">
+        <span class="prog-label" id="prog-text">1 / 12</span>
+        <span class="prog-pct" id="prog-pct">8%</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:8%"></div></div>
+    </div>
+    <div id="q-container"></div>
+    <div class="nav-row">
+      <button class="back-btn" id="back-btn" onclick="prevQ()">← 戻る</button>
+      <button class="next-btn" id="next-btn" onclick="nextQ()" disabled>次へ →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <div id="result-content"></div>
+  </div>
+
+  <div id="print-area"></div>
+</div>
+
+<script>
+const questions=[
+  {id:1,domain:"身体的・運動器",cls:"physical",text:"以前より歩く速度が遅くなったと感じる。",hint:"横断歩道を青信号の間に渡り切れるかどうかが一つの目安です。歩行速度が保たれている人は将来の要介護リスクが低いことがわかっています。日々の生活で「少し早歩き」を意識することが、足腰の筋肉を保つ秘訣です。"},
+  {id:2,domain:"身体的・筋力",cls:"physical",text:"手すりや壁をつたわずに、椅子から立ち上がることが難しい。",hint:"太ももの筋肉は、体を支え歩くためのエンジンです。ここが衰えると転倒の危険性が一気に高まります。座ったままできる足上げ運動などで、安全に筋肉を維持しましょう。"},
+  {id:3,domain:"栄養状態",cls:"nutrition",text:"過去6ヶ月間で、意図せずに2〜3kg以上の体重減少があった。",hint:"高齢期の急激な体重減少は、脂肪ではなく「筋肉」が落ちているサインかもしれません。しっかり食べて体重と筋肉の量を維持することが、病気に負けない体づくりに繋がります。"},
+  {id:4,domain:"栄養・食習慣",cls:"nutrition",text:"肉・魚・卵・大豆製品をあまり食べず、麺類やパンなど炭水化物中心の食事が増えた。",hint:"フレイル予防には「さあにぎやかにいただく」が合言葉です。魚・油・肉・牛乳・野菜・海藻・芋・卵・大豆・果物の10種類を意識して食べることで、筋肉の材料となる栄養をバランスよく摂ることができます。"},
+  {id:5,domain:"口腔機能",cls:"oral",text:"お茶や汁物を飲んだ時に、むせることがある。",hint:"むせることは気管を守る防御反応ですが、頻繁に起こる場合は喉の筋肉が衰えているサインです。お口の細菌が肺に入ると肺炎の原因になるため、毎日の歯磨きで口の中を清潔に保つことが命を守る鍵になります。"},
+  {id:6,domain:"口腔機能",cls:"oral",text:"口の渇きが気になったり、硬いものが食べにくくなったと感じる。",hint:"唾液には口の中のばい菌を洗い流す大切な働きがあります。口が渇くと細菌が増えやすくなります。食事の際によく噛むことや、お口の体操を取り入れることで、唾液の分泌を促しましょう。"},
+  {id:7,domain:"認知機能",cls:"cognitive",text:"家族や友人から「いつも同じことを聞く」などの物忘れを指摘されることがある。",hint:"誰にでも物忘れはありますが、同じことを何度も聞いてしまう場合は、脳の疲れや認知機能低下のサインかもしれません。人との会話や新しい趣味を始めることは、脳の最高のトレーニングになります。"},
+  {id:8,domain:"認知機能",cls:"cognitive",text:"今日が何月何日か、とっさに思い出せない（わからない）時がある。",hint:"今日の日付や曜日を意識することは、脳の「見当識」という機能を保つために重要です。カレンダーに印をつけたり、日記を書いたりする習慣が、脳を若々しく保ちます。"},
+  {id:9,domain:"精神・心理的",cls:"mental",text:"ここ2週間、わけもなく疲れたような感じや、以前楽しめたことが楽しめない感覚が続いている。",hint:"心の活力が低下すると、体を動かすのも億劫になり、結果として筋肉が落ちる原因になります。朝起きて日光を浴びて散歩をすることで、気分を安定させる脳内物質が分泌されやすくなります。"},
+  {id:10,domain:"社会的関与",cls:"social",text:"週に1回も外出しない（閉じこもり傾向がある）ことがある。",hint:"外出は、歩くことによる運動効果だけでなく、景色を見たり人とすれ違ったりすることで脳に多様な刺激を与えます。買い物や散歩など、小さな目的を見つけて外に出る機会を作りましょう。"},
+  {id:11,domain:"社会的交流",cls:"social",text:"家族や友人と、電話やSNSを含めて連絡を取り合うことが少ない。",hint:"声を出して誰かと話すことは、喉の筋肉を鍛え、脳の血流を良くする優れた効果があります。離れて暮らす家族や友人に、週に一度は電話やメッセージを送ってみましょう。"},
+  {id:12,domain:"社会的支援",cls:"social",text:"買い物や移動など、困ったときにすぐに助けを呼べる相手がいない。",hint:"いざという時に頼れる人がいるという安心感は、日々のストレスを減らし心身の健康を守ります。地域包括支援センターやご近所づきあいなど、身近な相談窓口や助け合える関係を持っておくことが大切です。"}
+];
+
+const domainGroups={"身体的":[0,1],"栄養":[2,3],"口腔":[4,5],"認知":[6,7],"精神":[8],"社会的":[9,10,11]};
+let current=0,answers=new Array(12).fill(null),lastScore=0,lastLevel="",lastActions=[];
+
+function startQuiz(){showScreen('quiz');renderQ(0);}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+
+function renderQ(idx){
+  const q=questions[idx];
+  const pct=Math.round(((idx+1)/12)*100);
+  document.getElementById('prog-text').textContent=(idx+1)+' / 12';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+  const yc=answers[idx]===true?' sel-yes':'';
+  const nc=answers[idx]===false?' sel-no':'';
+  document.getElementById('q-container').innerHTML=`
+    <div class="q-card">
+      <div class="q-num">第${q.id}問</div>
+      <span class="q-domain ${q.cls}">${q.domain}</span>
+      <div class="q-text">${q.text}</div>
+      <button class="hint-toggle" onclick="toggleHint(this)"><span>💡</span> ヒントを見る</button>
+      <div class="hint-box">${q.hint}</div>
+      <div class="answer-row">
+        <button class="ans-btn${yc}" id="ans-yes" onclick="selectAns(${idx},true)">はい</button>
+        <button class="ans-btn${nc}" id="ans-no" onclick="selectAns(${idx},false)">いいえ</button>
+      </div>
+    </div>`;
+  document.getElementById('back-btn').style.visibility=idx===0?'hidden':'visible';
+  const nb=document.getElementById('next-btn');
+  nb.disabled=answers[idx]===null;
+  nb.textContent=idx===11?'結果を見る ✦':'次へ →';
+}
+
+function toggleHint(btn){
+  const box=btn.nextElementSibling;
+  const open=box.classList.toggle('open');
+  btn.innerHTML=`<span>💡</span> ${open?'ヒントを閉じる':'ヒントを見る'}`;
+}
+
+function selectAns(idx,val){
+  answers[idx]=val;
+  document.getElementById('ans-yes').className='ans-btn'+(val===true?' sel-yes':'');
+  document.getElementById('ans-no').className='ans-btn'+(val===false?' sel-no':'');
+  document.getElementById('next-btn').disabled=false;
+}
+
+function nextQ(){if(current<11){current++;renderQ(current);}else{showResult();}}
+function prevQ(){if(current>0){current--;renderQ(current);}}
+
+function showResult(){
+  const score=answers.filter(a=>a===true).length;
+  lastScore=score;
+  let level,levelClass,levelIcon,desc,actions,dotCls;
+  if(score<=2){
+    level="健康（健常層）";levelClass="risk-healthy";levelIcon="🌿";dotCls="green";
+    desc="生活機能が自立しており、心身の予備能力が十分に保たれている状態です。現在の良好な生活習慣を継続することが、将来のフレイル予防につながります。";
+    actions=[
+      {label:"毎日の運動目標",text:"<strong>毎日6,000歩以上</strong>または40分以上の身体活動を目標に。買い物・家事・散歩など日常の動きを積み重ねましょう（厚生労働省ガイドライン）。"},
+      {label:"食の多様性",text:"<strong>「さあにぎやかにいただく」</strong>を合言葉に、10品目から1日7種以上を目標に食べましょう。"},
+      {label:"社会とのつながり",text:"地域のボランティアや趣味の集まりなど、<strong>外出を通じた社会参加</strong>の機会を継続しましょう。"}
+    ];
+  }else if(score<=5){
+    level="プレフレイル（前虚弱層）";levelClass="risk-prefail";levelIcon="🌤";dotCls="amber";
+    desc="一部のドメインで機能低下が始まりつつあるサインが見受けられます。今の段階で生活習慣を少し見直すだけで、健康な状態へ回復する可能性が高い時期です。";
+    actions=[
+      {label:"「ちょい足し」運動",text:"<strong>30分ごとに3分間立ち上がる</strong>習慣と、普段の生活に<strong>10分多く歩く</strong>ことを追加しましょう（東京都健康長寿医療センター研究所）。"},
+      {label:"自宅筋トレ",text:"椅子を使った<strong>スクワット10回</strong>・壁をつたった<strong>片足立ち</strong>・座ったまま<strong>もも上げ・膝伸ばし</strong>各10回。"},
+      {label:"口腔ケア",text:"食事前の<strong>嚥下体操</strong>と定期的な<strong>歯科受診</strong>で歯周病菌をコントロール。"},
+      {label:"つながりを増やす",text:"家族や友人に<strong>週1回は電話やメッセージ</strong>を。声を出して話すことは喉の筋肉と脳血流を改善します。"}
+    ];
+  }else{
+    level="フレイル（虚弱層）";levelClass="risk-frail";levelIcon="🔔";dotCls="coral";
+    desc="複数のドメインで機能低下が進んでいる可能性があります。一人で無理をせず、かかりつけ医や地域包括支援センターへの相談をおすすめします。";
+    actions=[
+      {label:"まず専門家に相談",text:"<strong>かかりつけ医</strong>または<strong>地域包括支援センター</strong>に現在の状態を相談しましょう。理学療法士などによるリハビリ介入が有効です。"},
+      {label:"座ったままできる体操",text:"<strong>つま先の上げ下げ</strong>（転倒予防）・<strong>腹筋運動</strong>（体幹安定）・<strong>指折り数え運動</strong>（デュアルタスク）を取り入れましょう。"},
+      {label:"深呼吸と手足の体操",text:"足踏みしながら肩や頭を触る<strong>デュアルタスク運動</strong>と、手を前から上げる<strong>深呼吸体操</strong>で脳血流を促しましょう（甲府市介護予防教室）。"},
+      {label:"薬の見直し",text:"<strong>お薬手帳を持参し</strong>、かかりつけ医に多剤併用（ポリファーマシー）の整理を相談してみましょう。"}
+    ];
+  }
+  lastLevel=level; lastActions=actions;
+
+  const domainCards=Object.entries(domainGroups).map(([name,idxList])=>{
+    const hits=idxList.filter(i=>answers[i]===true).length;
+    const pct=Math.round((hits/idxList.length)*100);
+    const color=pct===0?'#1D9E75':pct<=50?'#EF9F27':'#D85A30';
+    return `<div class="domain-card"><div class="domain-label">${name}</div><div class="domain-score">${hits}/${idxList.length}問</div><div class="domain-bar-bg"><div class="domain-bar-fill" style="width:${pct}%;background:${color};"></div></div></div>`;
+  }).join('');
+
+  const actionItems=actions.map((a,i)=>`
+    <div class="action-item">
+      <div class="action-dot ${dotCls}">${i+1}</div>
+      <div class="action-text"><strong>${a.label}</strong><br>${a.text}</div>
+    </div>`).join('');
+
+  document.getElementById('result-content').innerHTML=`
+    <div class="result-header">
+      <div class="risk-badge ${levelClass}">${levelIcon} ${level}</div><br>
+      <span class="score-display">${score}</span><span class="score-unit"> / 12</span>
+      <div class="score-sub">「はい」の数</div>
+    </div>
+    <div class="result-desc">${desc}</div>
+    <div class="section-label">ドメイン別</div>
+    <div class="domain-grid">${domainCards}</div>
+    <div class="action-section">
+      <div class="action-title">🎯 あなたへのアクションプラン</div>
+      ${actionItems}
+    </div>
+    <div class="evidence-box">📚 参考：厚生労働省「基本チェックリスト」、日本老年医学会フレイル診療ガイドライン、東京大学・飯島勝矢氏らによる「柏スタディ」、東京都健康長寿医療センター研究所、甲府市介護予防教室</div>
+    <div class="disclaimer-box" style="margin-top:1rem;">
+      <div class="disclaimer-box-title">⚠️ ご注意</div>
+      <ul>
+        <li>本アプリはスクリーニングを目的としており、医療診断ではありません</li>
+        <li>結果はあくまで参考であり、診断・治療方針の決定には使用しないでください</li>
+        <li>気になる症状は必ずかかりつけ医にご相談ください</li>
+      </ul>
+      <div class="credit">作成：山梨県立中央病院 リハビリテーションセンター</div>
+    </div>
+    <div class="bottom-actions">
+      <button class="btn-print" onclick="doPrint()">🖨 印刷する</button>
+      <button class="btn-restart" style="margin-top:0;" onclick="restartQuiz()">↩ もう一度</button>
+    </div>`;
+
+  buildPrintArea(score,level,levelIcon,desc,actions);
+  showScreen('result');
+}
+
+function buildPrintArea(score,level,levelIcon,desc,actions){
+  const now=new Date();
+  const ds=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日';
+  const qRows=questions.map((q,i)=>`<tr style="${i%2?'background:#f9f9f9':''}"><td style="padding:5px 8px;border:1px solid #ccc;font-size:12px;text-align:center;">${q.id}</td><td style="padding:5px 8px;border:1px solid #ccc;font-size:12px;">${q.domain}</td><td style="padding:5px 8px;border:1px solid #ccc;font-size:12px;">${q.text}</td><td style="padding:5px 8px;border:1px solid #ccc;font-size:12px;text-align:center;font-weight:bold;color:${answers[i]?'#7A2E10':'#074D38'};">${answers[i]?'はい':'いいえ'}</td></tr>`).join('');
+  const actionRows=actions.map((a,i)=>`<tr style="${i%2?'background:#f9f9f9':''}"><td style="padding:5px 8px;border:1px solid #ccc;font-size:12px;font-weight:bold;white-space:nowrap;">${i+1}. ${a.label}</td><td style="padding:5px 8px;border:1px solid #ccc;font-size:12px;">${a.text.replace(/<[^>]+>/g,'')}</td></tr>`).join('');
+  const domainRows=Object.entries(domainGroups).map(([name,idxList])=>{const hits=idxList.filter(i=>answers[i]).length;const c=hits===0?'#074D38':hits/idxList.length<=0.5?'#854F0B':'#7A2E10';return`<tr><td style="padding:5px 8px;border:1px solid #ccc;font-size:12px;">${name}</td><td style="padding:5px 8px;border:1px solid #ccc;font-size:12px;font-weight:bold;color:${c};">${hits}/${idxList.length}問</td></tr>`;}).join('');
+  const html=`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>健幸みらいナビ 結果</title><style>body{font-family:'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;color:#000;padding:24px;max-width:700px;margin:0 auto;}@media print{body{padding:12px;}}</style></head><body>
+  <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0F6E56;padding-bottom:10px;margin-bottom:18px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:32px;height:32px;border-radius:5px;background:#0F6E56;padding:6px;display:flex;flex-direction:column;justify-content:space-between;"><span style="display:block;height:3px;background:white;border-radius:2px;"></span><span style="display:block;height:3px;background:white;border-radius:2px;width:72%;"></span><span style="display:block;height:3px;background:white;border-radius:2px;width:86%;"></span></div>
+      <div><div style="font-size:9px;color:#555;">山梨県立中央病院 リハビリテーションセンター</div><div style="font-size:17px;font-weight:bold;color:#0F6E56;">健幸みらいナビ フレイルチェック結果</div></div>
+    </div>
+    <div style="font-size:11px;color:#555;">実施日：${ds}</div>
+  </div>
+  <div style="background:#f4faf7;border:1px solid #9FE1CB;border-radius:8px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:20px;">
+    <div style="text-align:center;min-width:56px;"><div style="font-size:34px;font-weight:bold;color:#0F6E56;">${score}</div><div style="font-size:10px;color:#555;">/ 12点</div></div>
+    <div><div style="font-size:16px;font-weight:bold;">${levelIcon} ${level}</div><div style="font-size:12px;color:#444;margin-top:4px;line-height:1.6;">${desc}</div></div>
+  </div>
+  <div style="margin-bottom:14px;"><div style="font-size:13px;font-weight:bold;margin-bottom:6px;color:#0F6E56;border-left:3px solid #0F6E56;padding-left:8px;">ドメイン別スコア</div><table style="width:100%;border-collapse:collapse;">${domainRows}</table></div>
+  <div style="margin-bottom:14px;"><div style="font-size:13px;font-weight:bold;margin-bottom:6px;color:#0F6E56;border-left:3px solid #0F6E56;padding-left:8px;">回答一覧</div><table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#E1F5EE;"><th style="padding:5px 8px;border:1px solid #ccc;font-size:11px;width:28px;">No.</th><th style="padding:5px 8px;border:1px solid #ccc;font-size:11px;width:90px;">ドメイン</th><th style="padding:5px 8px;border:1px solid #ccc;font-size:11px;">質問</th><th style="padding:5px 8px;border:1px solid #ccc;font-size:11px;width:46px;">回答</th></tr></thead><tbody>${qRows}</tbody></table></div>
+  <div style="margin-bottom:14px;"><div style="font-size:13px;font-weight:bold;margin-bottom:6px;color:#0F6E56;border-left:3px solid #0F6E56;padding-left:8px;">アクションプラン</div><table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#E1F5EE;"><th style="padding:5px 8px;border:1px solid #ccc;font-size:11px;width:110px;">項目</th><th style="padding:5px 8px;border:1px solid #ccc;font-size:11px;">内容</th></tr></thead><tbody>${actionRows}</tbody></table></div>
+  <div style="font-size:10px;color:#888;border-top:1px solid #ccc;padding-top:8px;line-height:1.6;">参考：厚生労働省「基本チェックリスト」、日本老年医学会フレイル診療ガイドライン、東京大学・柏スタディ（飯島勝矢氏ら）、東京都健康長寿医療センター研究所、甲府市介護予防教室<br>※本アプリはスクリーニングを目的とするものであり、医療診断ではありません。結果はあくまで参考であり、診断・治療方針の決定には使用しないでください。気になる症状は必ずかかりつけ医にご相談ください。<br>作成：山梨県立中央病院 リハビリテーションセンター</div>
+  </body></html>`;
+  document.getElementById('print-area').dataset.html=html;
+}
+
+function doPrint(){
+  const html=document.getElementById('print-area').dataset.html;
+  if(!html){alert('先にチェックを完了してください。');return;}
+  const win=window.open('','_blank','width=800,height=600');
+  if(!win){alert('ポップアップがブロックされています。ブラウザの設定でポップアップを許可してください。');return;}
+  win.document.write(html);win.document.close();win.focus();
+  setTimeout(()=>win.print(),400);
+}
+
+function restartQuiz(){
+  answers=new Array(12).fill(null);current=0;
+  document.getElementById('send-panel').classList.remove('open');
+  showScreen('start');
+}
+</script>
+</body>
+</html>
